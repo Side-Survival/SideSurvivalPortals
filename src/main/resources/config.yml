@@ -162,6 +162,10 @@ messages:
         portal-end: |-
           &f
           &dSpied, lai teleportētos!
+        portal-end-leave: |-
+          &f
+          &dSpied, lai teleportētos!
+          &cRight-Click, lai pamestu šo portālu!
     public-portals:
       gui-title: "Publiskie portāli"
       item-names:

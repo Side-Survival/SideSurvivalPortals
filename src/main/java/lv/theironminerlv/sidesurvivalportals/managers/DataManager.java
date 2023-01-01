@@ -37,7 +37,10 @@ public class DataManager {
                 Document doc = new Document("_id", portal.getId());
                 Document found = col.find(doc).first();
 
-                doc.put("world", portal.getWorld().getName());
+                // TODO: Vai tiešām ir nepieciešams saglabāt pasauli, ja portālu nevar pārvietot?
+                // TODO: Ja pārvieto, tas ir jāsalauž un jebkurā gadījumā beigsies ar dzēšanu no MongoDB...
+                //doc.put("world", portal.getWorld().getName());
+
                 doc.put("pos1", LocationSerialization.getStringFromLocation(portal.getPos1(), false));
                 doc.put("pos2", LocationSerialization.getStringFromLocation(portal.getPos2(), false));
                 doc.put("tploc", LocationSerialization.getStringFromLocation(portal.getTpLoc(), true));

@@ -82,6 +82,8 @@ public class PrivatePortalsMenu implements InventoryProvider {
             if (owner == null)
                 continue;
 
+            boolean canLeavePortal = canLeavePortal(player, portal, playerGroup);
+
             item = portal.getIcon().clone();
             itemMeta = item.getItemMeta();
             itemMeta.setDisplayName(
@@ -113,12 +115,27 @@ public class PrivatePortalsMenu implements InventoryProvider {
                 index += 30;
             }
 
-            descLines.addAll(Messages.getList("gui.private-portals.item-lores.portal-end"));
+            if (canLeavePortal) {
+                descLines.addAll(Messages.getList("gui.private-portals.item-lores.portal-end-leave"));
+            } else descLines.addAll(Messages.getList("gui.private-portals.item-lores.portal-end"));
 
             itemMeta.setLore(ConvertUtils.color(descLines));
             item.setItemMeta(itemMeta);
 
-            items[i] = ClickableItem.of(item, e -> portalManager.teleportTo(player, portal));
+            if (canLeavePortal) {
+                items[i] = ClickableItem.of(item, e -> {
+                    switch (e.getClick()) {
+                        case LEFT -> portalManager.teleportTo(player, portal);
+                        case RIGHT -> {
+                            plugin.handleClose.remove(player);
+                            portalManager.removePlayerAccess(portal, player.getUniqueId().toString());
+                            player.closeInventory();
+                        }
+                    }
+                });
+            } else {
+                items[i] = ClickableItem.of(item, e -> portalManager.teleportTo(player, portal));
+            }
             i++;
         }
 
@@ -128,11 +145,18 @@ public class PrivatePortalsMenu implements InventoryProvider {
 
         contents.set(3, 2, ClickableItem.of(MenuItems.prevPage, e -> open(player, pagination.previous().getPage())));
         contents.set(3, 6, ClickableItem.of(MenuItems.nextPage, e -> open(player, pagination.next().getPage())));
-
     }
 
     @Override
     public void update(Player player, InventoryContents contents) {
 
+    }
+
+    private boolean canLeavePortal(Player player, Portal portal, Group playerGroup) {
+        if (playerGroup != null && portal.getOwner().equals(playerGroup.getId())) return false;
+        if (playerGroup != null && portal.getOwner().equals(player.getUniqueId().toString())) return false;
+        if (playerGroup == null && portal.getOwner().equals(player.getUniqueId().toString())) return false;
+
+        return true;
     }
 }
